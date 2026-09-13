@@ -181,57 +181,42 @@ function usersRoutes() {
       }
       conn = await db().getConnection();
       await conn.beginTransaction();
+      const fail = async (code, error) => {
+        try { await conn.rollback(); } catch (_) {}
+        try { await conn.release(); } catch (_) {}
+        conn = null;
+        return res.status(code).json({ ok: false, error });
+      };
       const [existing] = await conn.query("SELECT id, role FROM web_users WHERE steamid64 = ? FOR UPDATE", [ steamid64 ]);
-      if (!existing.length) return res.status(404).json({
-        ok: false,
-        error: "USER_NOT_FOUND"
-      });
+      if (!existing.length) return await fail(404, "USER_NOT_FOUND");
       const actorRole = webNormalizeRole(req.session.user?.role);
       const actorLevel = webRolesDef()[actorRole]?.level || 0;
       const isSelf = req.session.user?.steamid64 === steamid64;
       const curRole = webNormalizeRole(existing[0].role);
       const curLevel = webRolesDef()[curRole]?.level || 0;
       if (actorRole !== "KP" && !isSelf && curLevel >= actorLevel) {
-        return res.status(403).json({
-          ok: false,
-          error: "INSUFFICIENT_PRIVILEGES"
-        });
+        return await fail(403, "INSUFFICIENT_PRIVILEGES");
       }
       const sets = [];
       const params = [];
       const changes = [];
       if (rawNick !== void 0) {
         const nickname = String(rawNick || "").trim();
-        if (!nickname || nickname.length < 2) return res.status(400).json({
-          ok: false,
-          error: "NICKNAME_EMPTY"
-        });
-        if (nickname.length > 32) return res.status(400).json({
-          ok: false,
-          error: "NICKNAME_TOO_LONG"
-        });
+        if (!nickname || nickname.length < 2) return await fail(400, "NICKNAME_EMPTY");
+        if (nickname.length > 32) return await fail(400, "NICKNAME_TOO_LONG");
         sets.push("nickname = ?");
         params.push(nickname);
         changes.push("ник");
       }
       if (rawRole !== void 0) {
         const role = String(rawRole || "").trim();
-        if (!webAllowedRoles().includes(role)) return res.status(400).json({
-          ok: false,
-          error: "INVALID_ROLE"
-        });
+        if (!webAllowedRoles().includes(role)) return await fail(400, "INVALID_ROLE");
         const newLevel = webRolesDef()[role]?.level || 0;
         if (actorRole !== "KP" && newLevel >= actorLevel) {
-          return res.status(403).json({
-            ok: false,
-            error: "CANNOT_ASSIGN_HIGHER_OR_EQUAL_ROLE"
-          });
+          return await fail(403, "CANNOT_ASSIGN_HIGHER_OR_EQUAL_ROLE");
         }
         if (isSelf && role !== curRole && actorRole !== "KP") {
-          return res.status(403).json({
-            ok: false,
-            error: "CANNOT_CHANGE_OWN_ROLE"
-          });
+          return await fail(403, "CANNOT_CHANGE_OWN_ROLE");
         }
         sets.push("role = ?");
         params.push(role);
@@ -239,23 +224,14 @@ function usersRoutes() {
       }
       if (rawPass !== void 0 && String(rawPass).length > 0) {
         const password = String(rawPass);
-        if (password.length < 6) return res.status(400).json({
-          ok: false,
-          error: "PASSWORD_TOO_SHORT"
-        });
-        if (password.length > 200) return res.status(400).json({
-          ok: false,
-          error: "PASSWORD_TOO_LONG"
-        });
+        if (password.length < 6) return await fail(400, "PASSWORD_TOO_SHORT");
+        if (password.length > 200) return await fail(400, "PASSWORD_TOO_LONG");
         const hash = await bcrypt.hash(password, 12);
         sets.push("password_hash = ?");
         params.push(hash);
         changes.push("пароль");
       }
-      if (!sets.length) return res.status(400).json({
-        ok: false,
-        error: "NOTHING_TO_UPDATE"
-      });
+      if (!sets.length) return await fail(400, "NOTHING_TO_UPDATE");
       params.push(steamid64);
       await conn.query(`UPDATE web_users SET ${sets.join(", ")} WHERE steamid64 = ?`, params);
       const [updatedRows] = await conn.query("SELECT COALESCE(nickname,'') AS nickname, COALESCE(role,'') AS role FROM web_users WHERE steamid64 = ? LIMIT 1", [ steamid64 ]);
@@ -278,6 +254,7 @@ function usersRoutes() {
       }
       await conn.commit();
       await conn.release();
+      conn = null;
       res.json({
         ok: true,
         message: "Изменения сохранены",
@@ -293,6 +270,7 @@ function usersRoutes() {
     }
   });
   r.delete("/api/delete_user", authGuard, requirePerm("manage_users"), async (req, res) => {
+    let conn;
     try {
       const steamid64 = String(req.query.sid || "").trim();
       if (!steamid64) return res.status(400).json({
@@ -305,36 +283,35 @@ function usersRoutes() {
       });
       conn = await db().getConnection();
       await conn.beginTransaction();
+      const fail = async (code, error) => {
+        try { await conn.rollback(); } catch (_) {}
+        try { await conn.release(); } catch (_) {}
+        conn = null;
+        return res.status(code).json({ ok: false, error });
+      };
       const [existing] = await conn.query("SELECT id, role FROM web_users WHERE steamid64 = ? FOR UPDATE", [ steamid64 ]);
-      if (!existing.length) return res.status(404).json({
-        ok: false,
-        error: "USER_NOT_FOUND"
-      });
-      if (req.session.user?.steamid64 === steamid64) {
-        return res.status(400).json({
-          ok: false,
-          error: "CANNOT_DELETE_YOURSELF"
-        });
-      }
+      if (!existing.length) return await fail(404, "USER_NOT_FOUND");
+      if (req.session.user?.steamid64 === steamid64) return await fail(400, "CANNOT_DELETE_YOURSELF");
       const actorRole = webNormalizeRole(req.session.user?.role);
       const actorLevel = webRolesDef()[actorRole]?.level || 0;
       const targetRole = webNormalizeRole(existing[0].role);
       const targetLevel = webRolesDef()[targetRole]?.level || 0;
-      if (actorRole !== "KP" && targetLevel >= actorLevel) return res.status(403).json({
-        ok: false,
-        error: "INSUFFICIENT_PRIVILEGES"
-      });
-      await pool.query("DELETE FROM web_users WHERE steamid64 = ?", [ steamid64 ]);
-      await pool.query("DELETE FROM admin_logs WHERE target = ? OR details LIKE ?", [ steamid64, "%" + steamid64 + "%"]).catch(() => {});
+      if (actorRole !== "KP" && targetLevel >= actorLevel) return await fail(403, "INSUFFICIENT_PRIVILEGES");
+      await conn.query("DELETE FROM web_users WHERE steamid64 = ?", [ steamid64 ]);
+      await conn.query("DELETE FROM admin_logs WHERE target = ? OR details LIKE ?", [ steamid64, "%" + steamid64 + "%" ]).catch(() => {});
       if (req.session.user) {
-        await logAdminAction(pool, req.session.user.steamid64, "DELETE_USER", steamid64, `Роль: ${existing[0].role}`);
+        await logAdminAction(conn, req.session.user.steamid64, "DELETE_USER", steamid64, `Роль: ${existing[0].role}`);
       }
+      await conn.commit();
+      await conn.release();
+      conn = null;
       res.json({
         ok: true,
         message: "Пользователь удален",
         steamid64: steamid64
       });
     } catch (e) {
+      if (conn) { try { await conn.rollback(); } catch (_) {}; try { await conn.release(); } catch (_) {}; }
       console.error("delete_user error:", e.message);
       res.status(500).json({
         ok: false,
@@ -342,6 +319,7 @@ function usersRoutes() {
       });
     }
   });
+
   return r;
 }
 

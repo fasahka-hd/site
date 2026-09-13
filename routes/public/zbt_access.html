@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arizona • Доступ ЗБТ</title>
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121418">
+  
+  
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=5" />
+</head>
+<body>
+
+<div class="toastWrap" id="toastWrap"></div>
+
+<div class="appScale">
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <img class="brandLogo" src="./img/logo.png" alt="Arizona">
+      <div class="brandText">
+        <div class="brandTitle">Arizona</div>
+        <div class="brandSub">Web Panel</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="navItem" data-perm="view_players" data-lock-page="/" href="/">Игроки</a>
+      <a class="navItem" data-perm="view_bans" data-lock-page="/bans" href="/bans">Баны</a>
+      <a class="navItem" data-perm="view_stats" data-lock-page="/stats" href="/stats">Статистика</a>
+      <a class="navItem" data-perm="view_admin_logs" data-lock-page="/admin-logs" href="/admin-logs">Логи админов</a>
+      <a class="navItem" data-perm="view_blacklist" data-lock-page="/blacklist" href="/blacklist">Черный список проекта</a>
+      <a class="navItem" data-perm="view_promos" data-lock-page="/promos" href="/promos">Промокоды</a>
+      <a class="navItem active" data-perm="manage_zbt_access" href="/zbt-access">Доступ ЗБТ</a>
+      
+    </nav>
+
+    <div class="sideBottom" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <div class="sideStatus" id="apiStatus">API: ...</div>
+      <a class="navItem logoutBtnSide" href="#" id="logoutBtn">Выход</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="h1">Доступ ЗБТ</div>
+        <div class="muted">Таблица доступа: ник, SteamID, Discord, ссылка на Steam и статус доступа.</div>
+      </div>
+      <div class="tools">
+        <input id="zbtSearch" class="input" placeholder="Поиск по нику / SteamID / Discord" />
+        <button id="zbtAdd" class="btn green" type="button" data-perm="manage_zbt_access">+ Строка</button>
+        <button id="zbtSave" class="btn gray" type="button" data-perm="manage_zbt_access">Сохранить</button>
+      </div>
+    </div>
+
+    <div class="card zbtCard">
+      <div class="zbtToolbar">
+        <div class="zbtStatus" id="zbtStatus" style="display:none"></div>
+        <div class="muted">Изменения сохраняются автоматически через пару секунд, кнопку можно нажать вручную.</div>
+      </div>
+      <div class="zbtTableWrap">
+        <table class="zbtTable">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Ник</th>
+              <th>SteamID</th>
+              <th>Discord</th>
+              <th>Ссылка на Steam</th>
+              <th>Доступ</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="zbtBody">
+            <tr><td colspan="7" class="banEmpty">Загрузка...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<script src="ui.js?v=13"></script>
+<script src="auth.js?v=8"></script>
+<script src="zbt_access.js?v=3"></script>
+<script src="lock_notice.js?v=1"></script>
+</body>
+</html>

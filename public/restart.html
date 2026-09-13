@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Рестарт сервера • Arizona</title>
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121418">
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=6" />
+  <style>
+    .restart-card { max-width: 620px; }
+    .restart-status { 
+      padding: 16px; border-radius: 12px; background: #1a1f27; 
+      border: 1px solid #334155; margin-bottom: 18px;
+    }
+    .restart-countdown { font-size: 28px; font-weight: 700; color: #f59e0b; letter-spacing: -1px; }
+    .restart-reason { font-size: 15px; color: #cbd5e1; margin-top: 4px; }
+    .restart-controls label { display:block; margin: 10px 0 4px; font-size: 13px; color:#94a3b8; }
+    .restart-controls select, .restart-controls input { width: 100%; }
+    .restart-btns { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .status-line { font-size: 13px; color: #64748b; margin-top: 8px; }
+    .restarting { animation: pulse 1.2s infinite; color: #ef4444; }
+  </style>
+</head>
+<body>
+<div class="toastWrap" id="toastWrap"></div>
+<div class="appScale"><div class="app">
+  <main class="main" style="padding-top:20px">
+    <div class="topbar">
+      <div>
+        <div class="h1">🔄 Рестарт сервера</div>
+        <div class="muted">Управление рестартом GMOD сервера</div>
+      </div>
+    </div>
+
+    <div class="card restart-card">
+      <div class="restart-status" id="statusBox">
+        <div class="muted" style="margin-bottom:4px">Активный рестарт (запланированный вручную)</div>
+        <div id="countdown" class="restart-countdown">—</div>
+        <div id="reasonLine" class="restart-reason">—</div>
+        <div id="statusLine" class="status-line">Загрузка...</div>
+      </div>
+
+      <div class="restart-status" style="background:#0f131a; margin-top:12px;">
+        <div class="muted" style="margin-bottom:4px">Следующий плановый рестарт (06:00 МСК)</div>
+        <div id="dailyCountdown" class="restart-countdown" style="color:#60a5fa">—</div>
+        <div id="dailyReasonLine" class="restart-reason">Каждый день в 6:00 по Москве</div>
+      </div>
+
+      <div class="restart-controls">
+        <label>Причина рестарта</label>
+        <select id="reasonSelect" class="select">
+          <option value="">Выберите причину...</option>
+          <option value="Техническое обновление">Техническое обновление</option>
+          <option value="Технические работы">Технические работы</option>
+          <option value="Исправление ошибок">Исправление ошибок</option>
+          <option value="Плановый рестарт">Плановый рестарт</option>
+          <option value="__custom">Своя причина...</option>
+        </select>
+        <input id="customReason" class="input" placeholder="Своя причина (опционально)" style="display:none;margin-top:8px">
+
+        <label style="margin-top:14px">Через сколько минут</label>
+        <input id="minutes" type="number" class="input" value="5" min="1" max="1440" step="1">
+
+        <div class="restart-btns">
+          <button id="scheduleBtn" class="btn btn-primary" style="flex:1">Запланировать рестарт</button>
+          <button id="cancelBtn" class="btn" style="flex:1">Отменить рестарт</button>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:16px;font-size:12px">
+        Обновление каждую секунду • Доступно только администраторам
+      </div>
+    </div>
+  </main>
+</div></div>
+
+<script src="ui.js?v=13"></script>
+<script src="auth.js?v=9"></script>
+<script src="restart.js?v=1"></script>
+
+
+<script>
+(function(){
+  function fmt(sec){
+    sec=Math.max(0,Math.floor(sec));
+    var h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+    return (h>0?h+'ч ':'')+m+'м '+s+'с';
+  }
+  function tick(){
+    var el=document.getElementById('dailyCountdown');
+    if(!el) return;
+    var now=Math.floor(Date.now()/1000);
+    var msk=now+(3*3600);
+    var today=msk%86400;
+    var target=6*3600;
+    if(today>=target) target+=86400;
+    var left=target-today;
+    el.textContent=fmt(left);
+    el.style.color='#60a5fa';
+  }
+  tick();
+  setInterval(tick,1000);
+  console.log('%c[Restart] INLINE 06:00 timer FORCED','color:#60a5fa');
+})();
+</script>
+</body>
+</html>

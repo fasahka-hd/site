@@ -1,0 +1,12 @@
+{
+  "name": "Arizona Web Panel",
+  "short_name": "Arizona",
+  "description": "Web-панель управления сервером VibeRP",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0d0a00",
+  "theme_color": "#eab308",
+  "icons": [
+    { "src": "/img/logo.png", "sizes": "256x256", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

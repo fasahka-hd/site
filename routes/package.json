@@ -1,0 +1,28 @@
+{
+  "name": "viberp-panel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "discord.js": "^14.27.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-mysql-session": "^3.0.3",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.18.0",
+    "gamedig": "^5.0.0",
+    "helmet": "^7.1.0",
+    "multer": "^2.2.0",
+    "mysql2": "^3.11.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "watch": [
+    "lib",
+    "routes",
+    "server.js",
+    "cluster.js"
+  ],
+  "ext": "js,json,env",
+  "ignore": [
+    "node_modules",
+    "data",
+    "public"
+  ],
+  "exec": "node cluster.js",
+  "signal": "SIGUSR2",
+  "delay": 500
+}

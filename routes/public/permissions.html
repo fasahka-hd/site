@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arizona • Права рангов</title>
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121418">
+  
+  
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=5" />
+</head>
+<body>
+
+<div class="toastWrap" id="toastWrap"></div>
+
+<div class="appScale">
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <img class="brandLogo" src="./img/logo.png" alt="Arizona">
+      <div class="brandText">
+        <div class="brandTitle">Arizona</div>
+        <div class="brandSub">Web Panel</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="navItem" data-perm="view_players" data-lock-page="/" href="/">Игроки</a>
+      <a class="navItem" data-perm="view_bans" data-lock-page="/bans" href="/bans">Баны</a>
+      <a class="navItem" data-perm="view_stats" data-lock-page="/stats" href="/stats">Статистика</a>
+      <a class="navItem" data-perm="view_admin_logs" data-lock-page="/admin-logs" href="/admin-logs">Логи админов</a>
+      <a class="navItem" data-perm="view_blacklist" data-lock-page="/blacklist" href="/blacklist">Черный список проекта</a>
+      <a class="navItem" data-perm="view_promos" data-lock-page="/promos" href="/promos">Промокоды</a>
+      <a class="navItem" data-perm="manage_zbt_access" data-lock-page="/zbt-access" href="/zbt-access">Доступ ЗБТ</a>
+      <a class="navItem active" data-manage-hub="1" href="/manage">Управление</a>
+      
+    </nav>
+
+    <div class="sideBottom" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <div class="sideStatus" id="apiStatus">API: ...</div>
+      <a class="navItem logoutBtnSide" href="#" id="logoutBtn">Выход</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="h1">Права рангов</div>
+        <div class="muted">Выберите ранг слева и настройте доступ к функциям. Можно создавать свои ранги.</div>
+      </div>
+
+      <div class="tools">
+        <button id="reload" class="btn">Обновить</button>
+        <button id="save" class="btn gray" data-perm="manage_permissions">Сохранить изменения</button>
+      </div>
+    </div>
+
+    <div class="err" id="err" style="display:none">Ошибка</div>
+
+    <div class="permLayout">
+      
+      <aside class="permRoles card">
+        <div class="permRolesHead">
+          <div class="h2" style="margin:0">Ранги</div>
+          <button id="addRoleBtn" class="btn small green" data-perm="manage_permissions">+ Новый ранг</button>
+        </div>
+        <div id="roleList" class="roleList"></div>
+
+        <div id="addRoleForm" class="addRoleForm" style="display:none">
+          <div class="addRoleTitle">Создать ранг</div>
+          <input id="newRoleKey" class="input" placeholder="Название ранга (напр. Стажёр)" maxlength="64" />
+          <select id="newRoleLevel" class="input">
+            <option value="30">Базовый доступ</option>
+            <option value="60">Расширенный доступ</option>
+            <option value="90">Полный доступ</option>
+          </select>
+          <div class="muted" style="font-size:12px;line-height:1.5">
+            Всего 3 уровня иерархии. Чем выше уровень — тем больше управленческих возможностей.
+          </div>
+          <div class="addRoleActions">
+            <button id="cancelRoleBtn" class="btn small">Отмена</button>
+            <button id="createRoleBtn" class="btn small green" data-perm="manage_permissions">Создать</button>
+          </div>
+        </div>
+      </aside>
+
+      
+      <section class="permEditor card">
+        <div class="permEditorHead">
+          <div>
+            <div class="permEditorTitle" id="curRoleTitle">Выберите ранг</div>
+            <div class="muted" id="curRoleSub">Нажмите на ранг слева, чтобы настроить его права</div>
+          </div>
+          <div class="permEditorTools" id="permEditorTools" style="display:none">
+            <button id="checkAllBtn" class="btn small">Выбрать всё</button>
+            <button id="uncheckAllBtn" class="btn small">Снять всё</button>
+            <button id="deleteRoleBtn" class="btn small danger" data-perm="manage_permissions" style="display:none">Удалить ранг</button>
+          </div>
+        </div>
+
+        <div id="permGroups" class="permGroups"></div>
+
+        <div id="kpNotice" class="kpNotice" style="display:none">
+           👑 У ранга <b>KP</b> всегда включены все права — изменить их нельзя.
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+
+<script src="ui.js?v=13"></script>
+<script src="auth.js?v=8"></script>
+<script src="permissions.js?v=4"></script>
+<script src="lock_notice.js?v=1"></script>
+</body>
+</html>

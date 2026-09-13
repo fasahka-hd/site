@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arizona • Тех.Раздел · Деньги</title>
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121418">
+  
+  
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=5" />
+</head>
+<body>
+<div class="toastWrap" id="toastWrap"></div>
+<div class="appScale"><div class="app">
+  <aside class="side">
+    <div class="brand"><img class="brandLogo" src="./img/logo.png" alt="Arizona"><div class="brandText"><div class="brandTitle">Arizona</div><div class="brandSub">Web Panel</div></div></div>
+    <nav class="nav">
+      <a class="navItem" data-perm="view_players" data-lock-page="/" href="/">Игроки</a>
+      <a class="navItem" data-perm="view_bans" data-lock-page="/bans" href="/bans">Баны</a>
+      <a class="navItem" data-perm="view_stats" data-lock-page="/stats" href="/stats">Статистика</a>
+      <a class="navItem" data-perm="view_admin_logs" data-lock-page="/admin-logs" href="/admin-logs">Логи админов</a>
+      <a class="navItem" data-perm="view_blacklist" data-lock-page="/blacklist" href="/blacklist">Черный список проекта</a>
+      <a class="navItem" data-perm="view_promos" data-lock-page="/promos" href="/promos">Промокоды</a>
+      <a class="navItem" data-perm="manage_zbt_access" data-lock-page="/zbt-access" href="/zbt-access">Доступ ЗБТ</a>
+      <a class="navItem" data-manage-hub="1" data-lock-page="/manage" href="/manage">Управление</a>
+      
+    </nav>
+      <div class="sideBottom">
+      <div class="sideStatus" id="apiStatus">API: ...</div>
+      <a class="navItem logoutBtnSide" href="#" id="logoutBtn">Выход</a>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><div class="h1">Тех.Раздел · Деньги</div><div class="muted">Все операции: ник, SteamID64, действие, сумма и участник перевода</div></div>
+      <div class="tools">
+        <input id="moneyQ" class="input" placeholder="Ник / SteamID / описание" />
+        <select id="moneyType" class="select"><option value="all">Все операции</option><option value="transfer">Только переводы</option><option value="income">Пополнения</option><option value="expense">Списания</option></select>
+        <select id="moneyPerPage" class="select"><option value="50">50</option><option value="100">100</option><option value="20">20</option></select>
+        <button id="moneyRefresh" class="btn">Обновить</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="muted" id="moneyCount">Загрузка...</div>
+      <div class="extractSummary" id="moneySummary"></div>
+      <div class="tableWrap moneyTableWrap">
+        <table class="table moneyTable"><thead><tr><th>Время</th><th>Игрок</th><th>SteamID64</th><th>Операция</th><th>Сумма</th><th>Кому / от кого</th><th>Описание</th></tr></thead><tbody id="moneyTbody"><tr><td colspan="7" class="banEmpty">Загрузка...</td></tr></tbody></table>
+      </div>
+      <div class="pager"><button class="btn" id="moneyPrev">←</button><div class="muted" id="moneyPage">Страница 1/1</div><button class="btn" id="moneyNext">→</button></div>
+      <div class="err" id="moneyErr" style="display:none">Ошибка загрузки операций</div>
+    </div>
+  </main>
+</div></div>
+<script src="ui.js?v=13"></script>
+<script src="auth.js?v=8"></script>
+<script src="tech_money.js?v=2"></script>
+<script src="lock_notice.js?v=1"></script>
+</body>
+</html>

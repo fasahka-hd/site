@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Arizona • Блокировки (KP)</title>
+<link rel="icon" type="image/png" href="./img/logo.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#121418">
+
+
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css?v=5" />
+<style>
+  .locksWrap { display:flex; flex-direction:column; gap:18px; }
+  .locksHero { display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+               padding:18px 20px; border-radius:20px; border:1px solid var(--border);
+               background:linear-gradient(135deg, rgba(var(--accent-rgb),.10), rgba(var(--purple-rgb),.08));
+               box-shadow:var(--shadow-card); }
+  .locksHeroLeft { display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .locksHeroTitle { font-size:18px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  .locksHeroTitle .kpBadge { font-size:11px; padding:3px 9px; border-radius:999px;
+                             background:linear-gradient(135deg, var(--accent), var(--purple));
+                             color:#1a1200; font-weight:900; letter-spacing:.4px; }
+  .locksHeroSub { color:var(--muted); font-size:13px; }
+  .locksHeroStats { display:flex; gap:10px; flex-wrap:wrap; }
+  .locksStat { padding:10px 14px; border-radius:14px; border:1px solid var(--border);
+               background:rgba(0,0,0,.18); font-size:13px; color:var(--muted); min-width:120px; }
+  .locksStat b { color:var(--text); font-size:16px; font-weight:800; }
+  .locksGrid { display:grid; grid-template-columns: 1.4fr 1fr; gap:18px; }
+  @media (max-width: 1100px) { .locksGrid { grid-template-columns:1fr; } }
+  .locksCard { padding:18px; border-radius:20px; border:1px solid var(--border);
+               background:rgba(0,0,0,.18); box-shadow:var(--shadow-card); }
+  .locksCardHead { display:flex; align-items:center; justify-content:space-between;
+                   gap:12px; margin-bottom:14px; }
+  .locksCardTitle { font-weight:800; font-size:15px; }
+  .locksGroup { border:1px solid var(--border); border-radius:16px;
+                background:rgba(255,255,255,.02); margin-bottom:12px; overflow:hidden; }
+  .locksGroup:last-child { margin-bottom:0; }
+  .locksGroupHead { display:flex; align-items:center; justify-content:space-between;
+                    gap:10px; padding:12px 14px; background:rgba(255,255,255,.04);
+                    border-bottom:1px solid var(--border); }
+  .locksGroupName { font-weight:800; font-size:13px; letter-spacing:.3px;
+                    text-transform:uppercase; color:var(--muted); }
+  .locksGroupCount { font-size:12px; color:var(--muted); }
+  .locksGroupBody { padding:10px 12px; display:grid;
+                    grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+                    gap:8px; }
+  .lockItem { display:flex; align-items:center; justify-content:space-between;
+              gap:10px; padding:10px 12px; border-radius:12px;
+              border:1px solid var(--border); background:rgba(0,0,0,.18); }
+  .lockItem.locked { border-color: rgba(239,68,68,.45);
+                     background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(239,68,68,.04)); }
+  .lockItemLabel { font-size:13px; font-weight:600; min-width:0;
+                   overflow:hidden; text-overflow:ellipsis; }
+  .lockItemKey { font-size:11px; color:var(--muted); font-family:ui-monospace,Menlo,monospace; }
+  .sw { position:relative; display:inline-block; width:44px; height:24px; flex:0 0 auto; }
+  .sw input { opacity:0; width:0; height:0; }
+  .swSlider { position:absolute; inset:0; background:rgba(255,255,255,.10);
+              border-radius:999px; cursor:pointer; }
+  .swSlider::before { content:""; position:absolute; height:18px; width:18px; left:3px; top:3px;
+                      background:#fff; border-radius:50%; }
+  .sw input:checked + .swSlider { background:linear-gradient(135deg,#ef4444,#b91c1c); }
+  .sw input:checked + .swSlider::before { transform:translateX(20px); }
+  .sw input:disabled + .swSlider { opacity:.5; cursor:not-allowed; }
+  .modeSwitch { display:inline-flex; background:rgba(255,255,255,.06); border:1px solid var(--border);
+                border-radius:14px; padding:4px; gap:4px; }
+  .modeSwitch button { background:transparent; border:0; color:var(--muted);
+                       padding:8px 14px; border-radius:10px; font-weight:700;
+                       font-size:13px; cursor:pointer; }
+  .modeSwitch button.on { background:linear-gradient(135deg, var(--accent), var(--purple));
+                          color:#1a1200; box-shadow:0 6px 18px rgba(var(--accent-rgb),.25); }
+  .locksNote { width:100%; min-height:60px; resize:vertical; padding:10px 12px;
+               border-radius:12px; border:1px solid var(--border);
+               background:rgba(0,0,0,.20); color:var(--text); font-size:13px;
+               font-family:inherit; outline:none; }
+  .locksNote:focus { border-color: var(--accent); }
+  .locksActions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .pageItem { display:flex; align-items:center; justify-content:space-between;
+              gap:10px; padding:10px 12px; border-radius:12px;
+              border:1px solid var(--border); background:rgba(0,0,0,.18);
+              margin-bottom:8px; }
+  .pageItem:last-child { margin-bottom:0; }
+  .pageItem.locked { border-color: rgba(239,68,68,.45);
+                     background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(239,68,68,.04)); }
+  .pageItemLabel { font-weight:600; font-size:13px; }
+  .pageItemKey { font-size:11px; color:var(--muted);
+                 font-family:ui-monospace,Menlo,monospace; }
+  .locksEmpty { color:var(--muted); padding:20px; text-align:center; font-size:13px; }
+  .locksGuard { padding:40px; text-align:center; color:var(--muted); }
+  .locksGuard h2 { color:var(--danger); font-size:20px; margin-bottom:10px; }
+  .liveDot { display:inline-block; width:8px; height:8px; border-radius:50%;
+             background:var(--ok); margin-right:8px; box-shadow:0 0 8px var(--ok); }
+</style>
+</head>
+<body>
+<div class="toastWrap" id="toastWrap"></div>
+<div class="appScale">
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <img class="brandLogo" src="./img/logo.png" alt="Arizona">
+      <div class="brandText">
+        <div class="brandTitle">Arizona</div>
+        <div class="brandSub">Web Panel</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a class="navItem" data-perm="view_players" data-lock-page="/" href="/">Игроки</a>
+      <a class="navItem" data-perm="view_bans" data-lock-page="/bans" href="/bans">Баны</a>
+      <a class="navItem" data-perm="view_stats" data-lock-page="/stats" href="/stats">Статистика</a>
+      <a class="navItem" data-perm="view_admin_logs" data-lock-page="/admin-logs" href="/admin-logs">Логи админов</a>
+      <a class="navItem" data-perm="view_blacklist" data-lock-page="/blacklist" href="/blacklist">Черный список проекта</a>
+      <a class="navItem" data-perm="view_promos" data-lock-page="/promos" href="/promos">Промокоды</a>
+      <a class="navItem" data-perm="manage_zbt_access" data-lock-page="/zbt-access" href="/zbt-access">Доступ ЗБТ</a>
+      <a class="navItem active" data-manage-hub="1" href="/manage">Управление</a>
+      
+    </nav>
+    <div class="sideBottom" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <div class="sideStatus" id="apiStatus">API: ...</div>
+      <a class="navItem logoutBtnSide" href="#" id="logoutBtn">Выход</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="h1">Блокировки <span style="font-size:11px;padding:3px 9px;border-radius:999px;background:linear-gradient(135deg,var(--accent),var(--purple));color:#1a1200;font-weight:900;letter-spacing:.4px;">KP</span></div>
+        <div class="muted">Скрытая панель: только ты (KP) можешь открыть эту страницу. У каждой строки есть два переключателя: «Остальные» и «Я (KP)». Не забудь нажать «Сохранить», иначе изменения не применятся.</div>
+      </div>
+      <div class="tools">
+        <button id="reloadBtn" class="btn" type="button">Обновить</button>
+        <button id="saveBtn" class="btn gray" type="button">Сохранить</button>
+        <button id="clearBtn" class="btn danger" type="button">Снять все</button>
+      </div>
+    </div>
+
+    <div class="err" id="err" style="display:none">Ошибка</div>
+
+    <div id="guard" class="locksGuard" style="display:none">
+      <h2>Доступ запрещён</h2>
+      <div>Эта страница видна только роли <b>KP</b>.</div>
+    </div>
+
+    <div id="content" class="locksWrap" style="display:none">
+      <div class="locksHero">
+        <div class="locksHeroLeft">
+          <div class="locksHeroTitle">Управление блокировками <span class="kpBadge">KP ONLY</span></div>
+          <div class="locksHeroSub">
+            <span class="liveDot"></span><span id="updatedInfo">Загрузка…</span>
+          </div>
+        </div>
+        <div class="locksHeroStats">
+          <div class="locksStat">Заблокировано действий: <b id="statPerms">0</b></div>
+          <div class="locksStat">Заблокировано страниц: <b id="statPages">0</b></div>
+          <div class="locksStat">Режим: <b id="statMode">—</b></div>
+        </div>
+      </div>
+
+      <div class="locksCard">
+        <div class="locksCardHead">
+          <div class="locksCardTitle">Режим блокировки</div>
+        </div>
+        <div class="locksActions" style="margin-bottom:14px">
+          <div class="modeSwitch" role="tablist" aria-label="Режим блокировки">
+            <button type="button" id="modeAll" class="on" data-mode="all">Блокировать всех (вкл. KP)</button>
+            <button type="button" id="modeOthers" data-mode="others">Только остальных</button>
+          </div>
+          <span class="muted" id="modeHint" style="font-size:12px"></span>
+        </div>
+        <input id="noteInput" class="locksNote" maxlength="200"
+               placeholder="Комментарий, что сейчас редактируется (видно только KP)" />
+      </div>
+
+      <div class="locksGrid">
+        <div class="locksCard">
+          <div class="locksCardHead">
+            <div class="locksCardTitle">Действия (permission keys)</div>
+            <div class="locksActions">
+              <button id="checkAllPerms" class="btn small" type="button">Заблокировать всё</button>
+              <button id="uncheckAllPerms" class="btn small" type="button">Снять всё</button>
+            </div>
+          </div>
+          <div id="permGroups" class="locksGroups"></div>
+          <div id="permEmpty" class="locksEmpty" style="display:none">Нет доступных действий</div>
+        </div>
+
+        <div class="locksCard">
+          <div class="locksCardHead">
+            <div class="locksCardTitle">Разделы панели</div>
+            <div class="locksActions">
+              <button id="checkAllPages" class="btn small" type="button">Заблокировать все</button>
+              <button id="uncheckAllPages" class="btn small" type="button">Снять все</button>
+            </div>
+          </div>
+          <div id="pagesList"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+<script src="ui.js?v=13"></script>
+<script src="auth.js?v=8"></script>
+<script src="locks.js?v=2"></script>
+</body>
+</html>

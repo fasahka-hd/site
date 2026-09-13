@@ -1,0 +1,35 @@
+[
+  {
+    "id": "cmd_1785517020_7484",
+    "type": "console",
+    "text": "blacklist_add 76561199234341305 1 Angel \"сын бляди\"",
+    "admin_steamid64": "76561199781623734",
+    "done": true,
+    "processing": false,
+    "time": 1785517020,
+    "processing_time": 0,
+    "done_time": 1785517020
+  },
+  {
+    "id": "cmd_1785517045_3149",
+    "type": "console",
+    "text": "ba perma STEAM_0:1:637037788 \"Животное\"",
+    "admin_steamid64": "76561199781623734",
+    "done": true,
+    "processing": false,
+    "time": 1785517045,
+    "processing_time": 0,
+    "done_time": 1785517046
+  },
+  {
+    "id": "cmd_1785517395_3594",
+    "type": "console",
+    "text": "ba setgroup STEAM_0:0:860699466 head-admin",
+    "admin_steamid64": "76561199781623734",
+    "done": true,
+    "processing": false,
+    "time": 1785517395,
+    "processing_time": 0,
+    "done_time": 1785517395
+  }
+]

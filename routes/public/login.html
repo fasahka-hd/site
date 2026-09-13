@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ARZManager • Вход</title>
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121418">
+  
+  
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=5" />
+</head>
+<body class="loginLandingBody">
+
+<div class="toastWrap" id="toastWrap"></div>
+
+<main class="loginLanding">
+  <section class="loginHero" aria-label="ARZManager">
+    <img class="loginHeroLogo" src="./img/logo.png" alt="ARZManager">
+    <h1 class="loginHeroTitle">ARZManager</h1>
+    <div class="loginHeroSub">Инструмент для управления сервером</div>
+  </section>
+
+  <section class="loginAuthArea" aria-label="Способы входа">
+    <div class="loginAuthDock">
+      <button class="loginDockBtn loginSteam" id="btnSteam" type="button">Войти через Steam</button>
+      <span class="loginDockSep" aria-hidden="true"></span>
+      <button class="loginDockBtn" id="btnPasswordToggle" type="button">Войти используя пароль</button>
+    </div>
+  </section>
+
+  <div class="loginPasswordOverlay" id="passwordOverlay" aria-hidden="true">
+    <div class="loginPasswordPanel" id="passwordPanel" role="dialog" aria-modal="true" aria-labelledby="loginPanelTitle">
+      <button class="loginPasswordClose" id="btnPasswordClose" type="button" aria-label="Закрыть">×</button>
+      <div class="loginPanelIcon">🔐</div>
+      <div class="loginPanelTitle" id="loginPanelTitle">Вход по паролю</div>
+      <div class="loginPanelSub">Введите SteamID64 и пароль от панели</div>
+      <input class="input loginField" id="steamid64" placeholder="SteamID64" autocomplete="username">
+      <input class="input loginField" id="password" type="password" placeholder="Пароль" autocomplete="current-password">
+      <div class="loginPanelActions">
+        <button class="btn gray" id="btnLogin" type="button">Войти</button>
+        <button class="btn" id="btnClear" type="button">Очистить</button>
+      </div>
+      <div id="errLine" class="err loginErr" style="display:none"></div>
+    </div>
+  </div>
+</main>
+
+<script src="ui.js?v=13"></script>
+<script src="login.js?v=3"></script>
+</body>
+</html>

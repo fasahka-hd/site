@@ -6,9 +6,9 @@ import { requirePerm } from "../lib/roles.js";
 
 import { authGuard } from "../lib/guard.js";
 
-import { decodeIfNeeded, logAdminAction, readQueueFile, writeQueueFile } from "../lib/helpers.js";
+import { decodeIfNeeded, logAdminAction } from "../lib/helpers.js";
 
-import { withQueueLock } from "../lib/queue_lock.js";
+import { enqueueCommand } from "../lib/command_queue.js";
 
 function playerJobsRoutes() {
   const r = Router();
@@ -57,26 +57,10 @@ function playerJobsRoutes() {
         if (req.session.user) {
           await logAdminAction(pool, req.session.user.steamid64, "GIVE_JOB", steamid32, `job_id: ${jobId}`);
         }
-        try {
-          const [[jRow]] = await pool.query("SELECT job_command FROM panel_jobs WHERE id = ? LIMIT 1", [ jobId ]);
-          if (jRow && jRow.job_command) {
-            await withQueueLock(async () => {
-              const queue = readQueueFile();
-              const now = Math.floor(Date.now() / 1e3);
-              const cmdText = `ba adddonate ${steamid32} ${jRow.job_command}`;
-              const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-              queue.push({
-                id: cmdId,
-                type: "console",
-                text: cmdText,
-                done: false,
-                processing: false,
-                time: now
-              });
-              writeQueueFile(queue);
-            });
-          }
-        } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+        const [[jRow]] = await pool.query("SELECT job_command FROM panel_jobs WHERE id = ? LIMIT 1", [ jobId ]);
+        if (jRow && jRow.job_command) {
+          await enqueueCommand(`ba adddonate ${steamid32} ${jRow.job_command}`, req.session?.user?.steamid64);
+        }
         return res.json({
           ok: true
         });
@@ -86,33 +70,14 @@ function playerJobsRoutes() {
           ok: false,
           error: "BAD_PARAMS"
         });
-        let jobCommand = "";
-        try {
-          const [[jRow]] = await pool.query("SELECT job_command FROM panel_jobs WHERE id = ? LIMIT 1", [ jobId ]);
-          if (jRow) jobCommand = jRow.job_command || "";
-        } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+        const [[jRow]] = await pool.query("SELECT job_command FROM panel_jobs WHERE id = ? LIMIT 1", [ jobId ]);
+        const jobCommand = jRow?.job_command || "";
         await pool.query("DELETE FROM panel_player_jobs WHERE steamid32 = ? AND job_id = ? LIMIT 1", [ steamid32, jobId ]);
         if (req.session.user) {
           await logAdminAction(pool, req.session.user.steamid64, "REVOKE_JOB", steamid32, `job_id: ${jobId}`);
         }
         if (jobCommand) {
-          try {
-            await withQueueLock(async () => {
-              const queue = readQueueFile();
-              const now = Math.floor(Date.now() / 1e3);
-              const cmdText = `ba removedonate ${steamid32} ${jobCommand}`;
-              const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-              queue.push({
-                id: cmdId,
-                type: "console",
-                text: cmdText,
-                done: false,
-                processing: false,
-                time: now
-              });
-              writeQueueFile(queue);
-            });
-          } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+          await enqueueCommand(`ba removedonate ${steamid32} ${jobCommand}`, req.session?.user?.steamid64);
         }
         return res.json({
           ok: true

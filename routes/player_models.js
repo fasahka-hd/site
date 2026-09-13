@@ -6,9 +6,9 @@ import { requirePerm } from "../lib/roles.js";
 
 import { authGuard } from "../lib/guard.js";
 
-import { decodeIfNeeded, steamWorkshopDetails, logAdminAction, readQueueFile, writeQueueFile } from "../lib/helpers.js";
+import { decodeIfNeeded, steamWorkshopDetails, logAdminAction } from "../lib/helpers.js";
 
-import { withQueueLock } from "../lib/queue_lock.js";
+import { enqueueCommand } from "../lib/command_queue.js";
 
 function playerModelsRoutes() {
   const r = Router();
@@ -91,26 +91,10 @@ function playerModelsRoutes() {
         if (req.session.user) {
           await logAdminAction(pool, req.session.user.steamid64, "GIVE_MODEL", steamid32, `model_id: ${modelId}`);
         }
-        try {
-          const [[mRow]] = await pool.query("SELECT model_path FROM panel_models WHERE id = ? LIMIT 1", [ modelId ]);
-          if (mRow && mRow.model_path) {
-            await withQueueLock(async () => {
-              const queue = readQueueFile();
-              const now = Math.floor(Date.now() / 1e3);
-              const cmdText = `addmodel ${steamid32} ${mRow.model_path}`;
-              const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-              queue.push({
-                id: cmdId,
-                type: "console",
-                text: cmdText,
-                done: false,
-                processing: false,
-                time: now
-              });
-              writeQueueFile(queue);
-            });
-          }
-        } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+        const [[mRow]] = await pool.query("SELECT model_path FROM panel_models WHERE id = ? LIMIT 1", [ modelId ]);
+        if (mRow && mRow.model_path) {
+          await enqueueCommand(`addmodel ${steamid32} ${mRow.model_path}`, req.session?.user?.steamid64);
+        }
         return res.json({
           ok: true
         });
@@ -130,23 +114,7 @@ function playerModelsRoutes() {
           await logAdminAction(pool, req.session.user.steamid64, "REVOKE_MODEL", steamid32, `model_id: ${modelId}`);
         }
         if (modelPath) {
-          try {
-            await withQueueLock(async () => {
-              const queue = readQueueFile();
-              const now = Math.floor(Date.now() / 1e3);
-              const cmdText = `removemodel ${steamid32} ${modelPath}`;
-              const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-              queue.push({
-                id: cmdId,
-                type: "console",
-                text: cmdText,
-                done: false,
-                processing: false,
-                time: now
-              });
-              writeQueueFile(queue);
-            });
-          } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+          await enqueueCommand(`removemodel ${steamid32} ${modelPath}`, req.session?.user?.steamid64);
         }
         return res.json({
           ok: true

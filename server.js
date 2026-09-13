@@ -22,6 +22,8 @@ import { fileURLToPath } from "url";
 
 import { initPool, ensurePanelSchema, db } from "./lib/db.js";
 
+import { migrateLegacyQueue } from "./lib/command_queue.js";
+
 import authRoutes from "./routes/auth.js";
 
 import playersRoutes from "./routes/players.js";
@@ -1449,6 +1451,8 @@ async function start() {
     app.locals.cfg = cfg;
     app.locals.db = db;
     await ensurePanelSchema();
+    const migratedQueue = await migrateLegacyQueue();
+    if (migratedQueue > 0) console.log(`[QUEUE] migrated ${migratedQueue} legacy JSON command(s) to MySQL`);
     await ensureTexLinkColumns(db());
     await loadLocks();
     setWarnLogChannelId(cfg.DISCORD_WARN_LOG_CHANNEL_ID);

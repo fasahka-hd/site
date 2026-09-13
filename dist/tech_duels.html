@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arizona • Общий раздел · Дуэли</title>
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121418">
+
+
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=6" />
+</head>
+<body>
+<div class="toastWrap" id="toastWrap"></div>
+<div class="appScale"><div class="app">
+  <aside class="side">
+    <div class="brand"><img class="brandLogo" src="./img/logo.png" alt="Arizona"><div class="brandText"><div class="brandTitle">Arizona</div><div class="brandSub">Web Panel</div></div></div>
+    <nav class="nav">
+      <a class="navItem" data-perm="view_players" data-lock-page="/" href="/">Игроки</a>
+      <a class="navItem" data-perm="view_bans" data-lock-page="/bans" href="/bans">Баны</a>
+      <a class="navItem" data-perm="view_stats" data-lock-page="/stats" href="/stats">Статистика</a>
+      <a class="navItem" data-perm="view_admin_logs" data-lock-page="/admin-logs" href="/admin-logs">Логи админов</a>
+      <a class="navItem" data-perm="view_blacklist" data-lock-page="/blacklist" href="/blacklist">Черный список проекта</a>
+      <a class="navItem" data-perm="view_promos" data-lock-page="/promos" href="/promos">Промокоды</a>
+      <a class="navItem" data-perm="manage_zbt_access" data-lock-page="/zbt-access" href="/zbt-access">Доступ ЗБТ</a>
+      <a class="navItem" data-manage-hub="1" data-lock-page="/manage" href="/manage">Управление</a>
+
+    </nav>
+      <div class="sideBottom">
+      <div class="sideStatus" id="apiStatus">API: ...</div>
+      <a class="navItem logoutBtnSide" href="#" id="logoutBtn">Выход</a>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><div class="h1">Дуэли</div><div class="muted" id="duelSyncLine">Синхронизация с сервером...</div></div>
+      <div class="tools">
+        <button id="duelResetAll" class="btn danger" type="button">🧹 Обнулить победы/поражения всем</button>
+        <button id="duelRefresh" class="btn">Обновить</button>
+      </div>
+    </div>
+    <div class="techCards" id="duelStats"></div>
+    <div class="tabBar duelTabs">
+      <button class="tabBtn active" data-tab="active" type="button">⚔️ Активные дуэли</button>
+      <button class="tabBtn" data-tab="top" type="button">🏆 Топ</button>
+      <button class="tabBtn" data-tab="players" type="button">👥 Игроки</button>
+      <button class="tabBtn" data-tab="history" type="button">📜 Логи дуэлей</button>
+    </div>
+    <div class="tabPanel active" id="panelActive">
+      <div class="card">
+        <div class="muted" id="duelActiveCount">Загрузка...</div>
+        <div class="gangGrid" id="duelLobbyGrid"></div>
+        <div class="err" id="duelActiveErr" style="display:none">Ошибка загрузки активных дуэлей</div>
+      </div>
+    </div>
+    <div class="tabPanel" id="panelTop">
+      <div class="card">
+        <div class="muted" id="duelTopCount">Загрузка...</div>
+        <div class="tableWrap moneyTableWrap">
+          <table class="table moneyTable"><thead><tr><th>#</th><th>Игрок</th><th>SteamID64</th><th>Побед</th><th>Поражений</th><th>Винрейт</th><th>Любимое оружие</th></tr></thead><tbody id="duelTopTbody"><tr><td colspan="7" class="banEmpty">Загрузка...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+    <div class="tabPanel" id="panelPlayers">
+      <div class="card">
+        <div class="tools duelPanelTools">
+          <input id="duelPlayerQ" class="input" placeholder="Ник / SteamID64" />
+          <select id="duelPlayerSort" class="select"><option value="total">По количеству дуэлей</option><option value="wins">По победам</option><option value="losses">По поражениям</option><option value="name">По нику</option></select>
+        </div>
+        <div class="muted" id="duelPlayersCount">Загрузка...</div>
+        <div class="tableWrap moneyTableWrap">
+          <table class="table moneyTable"><thead><tr><th>Игрок</th><th>SteamID64</th><th>Побед</th><th>Поражений</th><th>Всего</th><th>Винрейт</th><th>Любимое оружие</th><th>Действия</th></tr></thead><tbody id="duelPlayersTbody"><tr><td colspan="8" class="banEmpty">Загрузка...</td></tr></tbody></table>
+        </div>
+        <div class="pager"><button class="btn" id="duelPlayersPrev">←</button><div class="muted" id="duelPlayersPage">Страница 1/1</div><button class="btn" id="duelPlayersNext">→</button></div>
+        <div class="err" id="duelPlayersErr" style="display:none">Ошибка загрузки игроков</div>
+      </div>
+    </div>
+    <div class="tabPanel" id="panelHistory">
+      <div class="card">
+        <div class="tools duelPanelTools">
+          <input id="duelHistQ" class="input" placeholder="Ник / оппонент / SteamID64 / оружие" />
+          <select id="duelHistResult" class="select"><option value="all">Все результаты</option><option value="win">Победы</option><option value="lose">Поражения</option></select>
+        </div>
+        <div class="muted" id="duelHistCount">Загрузка...</div>
+        <div class="tableWrap moneyTableWrap">
+          <table class="table moneyTable"><thead><tr><th>Время</th><th>Игрок</th><th>Оппонент</th><th>Результат</th><th>Ставка</th><th>Тип</th><th>Оружие</th></tr></thead><tbody id="duelHistTbody"><tr><td colspan="7" class="banEmpty">Загрузка...</td></tr></tbody></table>
+        </div>
+        <div class="pager"><button class="btn" id="duelHistPrev">←</button><div class="muted" id="duelHistPage">Страница 1/1</div><button class="btn" id="duelHistNext">→</button></div>
+        <div class="err" id="duelHistErr" style="display:none">Ошибка загрузки логов</div>
+      </div>
+    </div>
+  </main>
+</div></div>
+<script src="ui.js?v=13"></script>
+<script src="auth.js?v=9"></script>
+<script src="tech_duels.js?v=1"></script>
+<script src="lock_notice.js?v=1"></script>
+</body>
+</html>

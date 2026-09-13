@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <base href="/">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arizona • Черный список проекта</title>
+  <link rel="icon" type="image/png" href="./img/logo.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#121418">
+  
+  
+  <link rel="preload" href="/fonts/f-cyrillic-4ee8fc98.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/f-latin-56724408.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=6" />
+</head>
+<body>
+
+<div class="toastWrap" id="toastWrap"></div>
+
+<div class="appScale">
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <img class="brandLogo" src="./img/logo.png" alt="Arizona">
+      <div class="brandText">
+        <div class="brandTitle">Arizona</div>
+        <div class="brandSub">Web Panel</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="navItem" data-perm="view_players" data-lock-page="/" href="/">Игроки</a>
+      <a class="navItem" data-perm="view_bans" data-lock-page="/bans" href="/bans">Баны</a>
+      <a class="navItem" data-perm="view_stats" data-lock-page="/stats" href="/stats">Статистика</a>
+      <a class="navItem" data-perm="view_admin_logs" data-lock-page="/admin-logs" href="/admin-logs">Логи админов</a>
+      <a class="navItem active" data-perm="view_blacklist" href="/blacklist">Черный список проекта</a>
+      <a class="navItem" data-perm="view_promos" data-lock-page="/promos" href="/promos">Промокоды</a>
+      <a class="navItem" data-perm="manage_zbt_access" data-lock-page="/zbt-access" href="/zbt-access">Доступ ЗБТ</a>
+      
+    </nav>
+
+    <div class="sideBottom" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <div class="sideStatus" id="apiStatus">API: ...</div>
+      <a class="navItem logoutBtnSide" href="#" id="logoutBtn">Выход</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="h1">Черный список проекта (ЧСП)</div>
+        <div class="muted" id="subLine">Все игроки, занесенные в ЧСП</div>
+      </div>
+
+      <div class="tools">
+        <input id="q" class="input" placeholder="Поиск по нику / steamid / ip / причине" />
+        <select id="perPage" class="select">
+          <option value="20">Элементов 20</option>
+          <option value="50">Элементов 50</option>
+          <option value="100">Элементов 100</option>
+        </select>
+        <button id="massAdd" class="btn" data-perm="manage_blacklist">Массовое ЧСП</button>
+        <button id="refresh" class="btn">Обновить</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="err" id="err" style="display:none">Ошибка загрузки</div>
+
+      <div class="tableWrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Ник</th>
+              <th>SteamID</th>
+              <th>SteamID64</th>
+              <th>IP</th>
+              <th>Причина</th>
+              <th>Кто внес</th>
+              <th>Обновлено</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="7" class="banEmpty">Загрузка...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pager" id="pager" style="display:none">
+        <button class="btn" id="prevPage">←</button>
+        <div class="muted" id="pageInfo">Страница 1/1</div>
+        <button class="btn" id="nextPage">→</button>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<script src="ui.js?v=13"></script>
+<script src="auth.js?v=9"></script>
+<script src="blacklist.js?v=7"></script>
+<script src="lock_notice.js?v=1"></script>
+</body>
+</html>

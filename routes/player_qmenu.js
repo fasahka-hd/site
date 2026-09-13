@@ -6,9 +6,9 @@ import { requirePerm } from "../lib/roles.js";
 
 import { authGuard } from "../lib/guard.js";
 
-import { decodeIfNeeded, logAdminAction, readQueueFile, writeQueueFile } from "../lib/helpers.js";
+import { decodeIfNeeded, logAdminAction } from "../lib/helpers.js";
 
-import { withQueueLock } from "../lib/queue_lock.js";
+import { enqueueCommand } from "../lib/command_queue.js";
 
 function playerQmenuRoutes() {
   const r = Router();
@@ -61,23 +61,7 @@ function playerQmenuRoutes() {
         if (req.session.user) {
           await logAdminAction(pool, req.session.user.steamid64, "GIVE_QMENU", steamid32, `type: ${accessType}`);
         }
-        try {
-          await withQueueLock(async () => {
-            const queue = readQueueFile();
-            const now = Math.floor(Date.now() / 1e3);
-            const cmdText = `giveqmenu ${steamid32} ${accessType}`;
-            const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-            queue.push({
-              id: cmdId,
-              type: "console",
-              text: cmdText,
-              done: false,
-              processing: false,
-              time: now
-            });
-            writeQueueFile(queue);
-          });
-        } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+        await enqueueCommand(`giveqmenu ${steamid32} ${accessType}`, req.session?.user?.steamid64);
         return res.json({
           ok: true
         });
@@ -91,23 +75,7 @@ function playerQmenuRoutes() {
         if (req.session.user) {
           await logAdminAction(pool, req.session.user.steamid64, "REVOKE_QMENU", steamid32, `type: ${accessType}`);
         }
-        try {
-          await withQueueLock(async () => {
-            const queue = readQueueFile();
-            const now = Math.floor(Date.now() / 1e3);
-            const cmdText = `removeqmenu ${steamid32} ${accessType}`;
-            const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-            queue.push({
-              id: cmdId,
-              type: "console",
-              text: cmdText,
-              done: false,
-              processing: false,
-              time: now
-            });
-            writeQueueFile(queue);
-          });
-        } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+        await enqueueCommand(`removeqmenu ${steamid32} ${accessType}`, req.session?.user?.steamid64);
         return res.json({
           ok: true
         });

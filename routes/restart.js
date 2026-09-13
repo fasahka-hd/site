@@ -6,6 +6,10 @@ import { authGuard } from "../lib/guard.js";
 
 import { requirePerm } from "../lib/roles.js";
 
+import { db } from "../lib/db.js";
+
+import { enqueueCommand } from "../lib/command_queue.js";
+
 let lastRestartState = {
   seconds: 0,
   reason: "",
@@ -86,23 +90,9 @@ function restartRoutes(cfg) {
     const cmdText = `ar_restart_reason_b64 ${minutes} ${encoded}`;
     try {
       const now = Math.floor(Date.now() / 1e3);
-      const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-      const {readQueueFile: readQueueFile, writeQueueFile: writeQueueFile} = await import("../lib/helpers.js");
-      const data = readQueueFile();
-      data.push({
-        id: cmdId,
-        type: "console",
-        text: cmdText,
-        admin_steamid64: String(req.session?.user?.steamid64 || ""),
-        done: false,
-        processing: false,
-        time: now
-      });
-      writeQueueFile(data);
-      try {
-        const {db: db} = await import("../lib/db.js");
-        await db().query("INSERT INTO admin_logs (admin_steamid64, action, target, details, timestamp) VALUES (?, ?, ?, ?, ?)", [ String(req.session?.user?.steamid64 || ""), "restart", "", `Restart scheduled: ${minutes} min, reason: ${reason}`, now ]);
-      } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+      const adminSid64 = String(req.session?.user?.steamid64 || "");
+      const cmdId = await enqueueCommand(cmdText, adminSid64);
+      await db().query("INSERT INTO admin_logs (admin_steamid64, action, target, details, timestamp) VALUES (?, ?, ?, ?, ?)", [ adminSid64, "restart", "", `Restart scheduled: ${minutes} min, reason: ${reason}`, now ]).catch(e => console.error("restart admin log error:", e?.message || e));
       res.json({
         ok: true,
         id: cmdId,
@@ -120,25 +110,12 @@ function restartRoutes(cfg) {
   r.post("/api/restart/cancel", authGuard, requirePerm("raw_console"), async (req, res) => {
     try {
       const now = Math.floor(Date.now() / 1e3);
-      const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-      const {readQueueFile: readQueueFile, writeQueueFile: writeQueueFile} = await import("../lib/helpers.js");
-      const data = readQueueFile();
-      data.push({
-        id: cmdId,
-        type: "console",
-        text: "ar_restart_cancel",
-        admin_steamid64: String(req.session?.user?.steamid64 || ""),
-        done: false,
-        processing: false,
-        time: now
-      });
-      writeQueueFile(data);
-      try {
-        const {db: db} = await import("../lib/db.js");
-        await db().query("INSERT INTO admin_logs (admin_steamid64, action, target, details, timestamp) VALUES (?, ?, ?, ?, ?)", [ String(req.session?.user?.steamid64 || ""), "restart_cancel", "", "Restart cancelled", now ]);
-      } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+      const adminSid64 = String(req.session?.user?.steamid64 || "");
+      const cmdId = await enqueueCommand("ar_restart_cancel", adminSid64);
+      await db().query("INSERT INTO admin_logs (admin_steamid64, action, target, details, timestamp) VALUES (?, ?, ?, ?, ?)", [ adminSid64, "restart_cancel", "", "Restart cancelled", now ]).catch(e => console.error("restart cancel admin log error:", e?.message || e));
       res.json({
-        ok: true
+        ok: true,
+        id: cmdId
       });
     } catch (e) {
       console.error("restart cancel error:", e.message);

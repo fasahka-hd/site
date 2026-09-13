@@ -6,9 +6,9 @@ import { requirePerm } from "../lib/roles.js";
 
 import { authGuard } from "../lib/guard.js";
 
-import { decodeIfNeeded, logAdminAction, readQueueFile, writeQueueFile } from "../lib/helpers.js";
+import { decodeIfNeeded, logAdminAction } from "../lib/helpers.js";
 
-import { withQueueLock } from "../lib/queue_lock.js";
+import { enqueueCommand } from "../lib/command_queue.js";
 
 function normalizePropsAmount(value) {
   const n = parseInt(value || 0, 10);
@@ -28,23 +28,8 @@ async function ensureAccessTable() {
   }
 }
 
-async function pushConsole(text) {
-  try {
-    await withQueueLock(async () => {
-      const queue = readQueueFile();
-      const now = Math.floor(Date.now() / 1e3);
-      const cmdId = "cmd_" + now + "_" + Math.floor(1e3 + Math.random() * 9e3);
-      queue.push({
-        id: cmdId,
-        type: "console",
-        text: text,
-        done: false,
-        processing: false,
-        time: now
-      });
-      writeQueueFile(queue);
-    });
-  } catch (e) { console.error("catch error:", e && e.message ? e.message : e); }
+async function pushConsole(text, adminSid64) {
+  return enqueueCommand(text, adminSid64);
 }
 
 function playerAccessRoutes() {
@@ -97,8 +82,8 @@ function playerAccessRoutes() {
         if (req.session.user) {
           await logAdminAction(db(), req.session.user.steamid64, "SET_PLAYER_ACCESS", steamid32, `props_extra: ${propsExtra}, setmodel: ${setmodel}`);
         }
-        await pushConsole(`panel_setprops ${steamid32} ${propsExtra}`);
-        await pushConsole(`panel_setmodelaccess ${steamid32} ${setmodel}`);
+        await pushConsole(`panel_setprops ${steamid32} ${propsExtra}`, req.session?.user?.steamid64);
+        await pushConsole(`panel_setmodelaccess ${steamid32} ${setmodel}`, req.session?.user?.steamid64);
         return res.json({
           ok: true
         });
@@ -108,8 +93,8 @@ function playerAccessRoutes() {
         if (req.session.user) {
           await logAdminAction(db(), req.session.user.steamid64, "CLEAR_PLAYER_ACCESS", steamid32, "");
         }
-        await pushConsole(`panel_setprops ${steamid32} 0`);
-        await pushConsole(`panel_setmodelaccess ${steamid32} 0`);
+        await pushConsole(`panel_setprops ${steamid32} 0`, req.session?.user?.steamid64);
+        await pushConsole(`panel_setmodelaccess ${steamid32} 0`, req.session?.user?.steamid64);
         return res.json({
           ok: true
         });
